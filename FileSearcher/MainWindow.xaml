@@ -4,9 +4,31 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileSearcher"
+        xmlns:vms="clr-namespace:FileSearcher.ViewModels"
+        xmlns:views="clr-namespace:FileSearcher.Views"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.Resources>
+            <DataTemplate DataType="{x:Type vms:FileSearchSettingsViewModel}">
+                <views:FileSearchSettingsView/>
+            </DataTemplate>
+        </Grid.Resources>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
 
+        <StackPanel Grid.Column="0"
+                    Background="{StaticResource Primary}">
+            <TextBlock Style="{StaticResource Header}"
+                       Text="File Searcher"/>
+            
+            
+        </StackPanel>
+
+        <ContentControl Grid.Column="1"
+                        Content="{Binding CurrentViewModel}"/>
     </Grid>
 </Window>

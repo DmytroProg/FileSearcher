@@ -1,9 +1,17 @@
 ﻿<Application x:Class="FileSearcher.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:FileSearcher"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:FileSearcher">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="Primary" Color="#007BFF"/>
+            <SolidColorBrush x:Key="Secondary" Color="#6C757D"/>
+
+            <Style x:Key="Header" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="34"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Margin" Value="10"/>
+            </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
