@@ -21,7 +21,7 @@ namespace BusinessDataLogic
 
         public async Task WriteFileAsync(string path, string text)
         {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Write))
+            using (var fileStream = new FileStream(path, FileMode.Append, FileAccess.Write))
             {
                 using (var streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
                 {

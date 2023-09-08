@@ -9,6 +9,7 @@ namespace BusinessDataLogic
     public class FileSearchOptions
     {
         public IEnumerable<string> Drives { get; set; } = null!;
+        public IEnumerable<string> IlligalWords { get; set; } = null!;
         public string SelectedFolder { get; set; } = null!;
     }
 }
