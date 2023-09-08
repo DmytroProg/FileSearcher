@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 
 namespace FileSearcher.ViewModels.Base
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public class ViewModelBase : INotifyPropertyChanged, IDisposable
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public virtual void Dispose()
+        {
+        }
 
         public void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {

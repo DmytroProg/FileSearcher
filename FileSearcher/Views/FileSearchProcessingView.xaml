@@ -39,8 +39,12 @@
 
             <StackPanel Grid.Row="1"
                         Grid.Column="0">
-                <TextBlock Text="{Binding FilesCount, StringFormat={}{0} files}"/>
-                <TextBlock Text="03:45s"/>
+                <TextBlock Text="{Binding FilesCount, 
+                                          UpdateSourceTrigger=PropertyChanged,
+                                          StringFormat={}{0} files}"/>
+                <TextBlock Text="{Binding ProcessingTime, 
+                                          UpdateSourceTrigger=PropertyChanged,
+                                          StringFormat={}{0:mm:ss}}"/>
             </StackPanel>
 
             <Grid Grid.Column="1">
@@ -62,14 +66,18 @@
 
             <TextBlock Grid.Row="1"
                        Grid.Column="1"
-                       Text="53%"
+                       Text="{Binding ProcessValue,
+                                      UpdateSourceTrigger=PropertyChanged,
+                                      StringFormat={}{0}%}"
                        TextAlignment="Right"/>
         </Grid>
 
         <ProgressBar Grid.Row="1" 
                      Margin="10 20"
                      Foreground="{StaticResource Primary}"
-                     Value="53"
+                     Value="{Binding ProcessValue, 
+                                     Mode=OneWay,
+                                     UpdateSourceTrigger=PropertyChanged}"
                      Minimum="0"
                      Maximum="100"
                      Height="30"/>

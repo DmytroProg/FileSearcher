@@ -27,5 +27,12 @@ namespace FileSearcher.ViewModels
         {
             OnPropertyChanged(nameof(CurrentViewModel));
         }
+
+        public override void Dispose()
+        {
+            _navigationStore.OnViewModelChanged -= _navigationStore_OnViewModelChanged;
+
+            base.Dispose();
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace FileSearcher.ViewModels
             LoadDrives();
 
             _navigationStore = navigationStore;
-            StartCommand = new NavigationCommand(_navigationStore, CreateFileSearcherProcessingViewModel());
+            StartCommand = new NavigationCommand(_navigationStore, CreateFileSearcherProcessingViewModel);
         }
 
         private FileSearcherProcessingViewModel CreateFileSearcherProcessingViewModel()
@@ -44,8 +44,11 @@ namespace FileSearcher.ViewModels
             return new FileSearcherProcessingViewModel(_navigationStore,
             new FileSearchOptions()
             {
-                Drives = LogicalDrives.Select(x => x.DriveName).AsEnumerable(),
-                SelectedFolder = SelectedFolder
+                Drives = LogicalDrives.Select(x => x.DriveName).Where(x => x == "G:\\").AsEnumerable(),
+                //Drives = LogicalDrives.Select(x => x.DriveName).AsEnumerable(),
+                //Drives = new List<string>() { "C:\\Users\\User\\Downloads\\TempFolder" },
+                SelectedFolder = SelectedFolder,
+                IlligalWords = new List<string>() { "fuck" },
             });
         }
 

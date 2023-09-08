@@ -6,22 +6,44 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FileSearcher.ViewModels
 {
     public class FileSearcherProcessingViewModel : ViewModelBase
     {
+        private int _maxFilesCount = 1;
+        private TimeOnly _processingTime;
         private FileSearchFacade _fileSearchFacade;
         private NavigationStore _navigationStore;
         private Dictionary<string, string> _propertyChangedDependencies;
+        private Timer timer;
 
         public Dictionary<string, bool> Tasks { get; set; }
 
+        public int ProcessValue
+        {
+            get => (_fileSearchFacade.IlligalFilesCount * 100) / _maxFilesCount;
+        }
+
         public int FilesCount
         {
-            get => _fileSearchFacade.Count;
-            private set => _fileSearchFacade.Count = value;
+            get
+            {
+                OnPropertyChanged(nameof(ProcessValue));
+                return _fileSearchFacade.IlligalFilesCount;
+            }
+        }
+
+        public TimeOnly ProcessingTime
+        {
+            get => _processingTime;
+            set
+            {
+                _processingTime = value;
+                OnPropertyChanged();
+            }
         }
 
         public FileSearcherProcessingViewModel(NavigationStore navigationStore, FileSearchOptions fileSearchOptions)
@@ -29,23 +51,34 @@ namespace FileSearcher.ViewModels
             _fileSearchFacade = new FileSearchFacade(fileSearchOptions);
             _fileSearchFacade.PropertyChanged += _fileSearchFacade_PropertyChanged;
             _propertyChangedDependencies = new Dictionary<string, string>();
+            timer = new Timer(OnTimerTick);
             SetPropertyChnagedDependencies();
             _navigationStore = navigationStore;
 
             Tasks = new Dictionary<string, bool>();
             SetupTasks();
 
-            StartCounting();
+            if(_navigationStore.CurrentViewModel != null)
+            {
+                StartProcessingFilesAsync();
+            }
         }
 
-        private async Task StartCounting()
+        public async void StartProcessingFilesAsync()
         {
-            await _fileSearchFacade.GetAllFilesCount();
+            timer.Change(0, 1000);
+
+            int filesCount = await _fileSearchFacade.GetAllFilesCount();
+            _maxFilesCount = _fileSearchFacade.MaxFilesCount;
+
+            var list = await _fileSearchFacade.GetAllIlligalFiles();
+
+            int a = 1;
         }
 
         private void SetPropertyChnagedDependencies()
         {
-            _propertyChangedDependencies[nameof(_fileSearchFacade.Count)] = nameof(FilesCount);
+            _propertyChangedDependencies[nameof(_fileSearchFacade.IlligalFilesCount)] = nameof(FilesCount);
         }
 
         private void _fileSearchFacade_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -59,6 +92,18 @@ namespace FileSearcher.ViewModels
             Tasks["Searching files"] = false;
             Tasks["Copying files"] = false;
             OnPropertyChanged(nameof(Tasks));
+        }
+
+        private void OnTimerTick(object? obj)
+        {
+            ProcessingTime = ProcessingTime.Add(TimeSpan.FromSeconds(1));
+        }
+
+        public override void Dispose()
+        {
+            timer?.Dispose();
+            _fileSearchFacade.PropertyChanged -= _fileSearchFacade_PropertyChanged;
+            base.Dispose();
         }
     }
 }
