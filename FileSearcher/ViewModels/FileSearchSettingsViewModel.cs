@@ -1,5 +1,7 @@
 ﻿using BusinessDataLogic;
+using FileSearcher.Commands;
 using FileSearcher.Models;
+using FileSearcher.Stores;
 using FileSearcher.ViewModels.Base;
 using GalaSoft.MvvmLight.Command;
 using System;
@@ -15,8 +17,8 @@ namespace FileSearcher.ViewModels
 {
     public class FileSearchSettingsViewModel : ViewModelBase
     {
-        private FileSearchFacade facade;
         private string _selectedFolder;
+        private NavigationStore _navigationStore;
 
         public ObservableCollection<LogicalDriveModel> LogicalDrives { get; }
         public string SelectedFolder {
@@ -28,11 +30,23 @@ namespace FileSearcher.ViewModels
             }
         }
 
-        public FileSearchSettingsViewModel()
+        public FileSearchSettingsViewModel(NavigationStore navigationStore)
         {
-            facade = new FileSearchFacade();
-            LogicalDrives = new ObservableCollection<LogicalDriveModel>();
+            LogicalDrives = new ObservableCollection<LogicalDriveModel>(); 
             LoadDrives();
+
+            _navigationStore = navigationStore;
+            StartCommand = new NavigationCommand(_navigationStore, CreateFileSearcherProcessingViewModel());
+        }
+
+        private FileSearcherProcessingViewModel CreateFileSearcherProcessingViewModel()
+        {
+            return new FileSearcherProcessingViewModel(_navigationStore,
+            new FileSearchOptions()
+            {
+                Drives = LogicalDrives.Select(x => x.DriveName).AsEnumerable(),
+                SelectedFolder = SelectedFolder
+            });
         }
 
         /// <summary>
@@ -66,5 +80,7 @@ namespace FileSearcher.ViewModels
                 SelectedFolder = folderBrowserDialog.SelectedPath;
             }
         }
+
+        public ICommand StartCommand { get; }
     }
 }

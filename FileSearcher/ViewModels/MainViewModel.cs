@@ -19,6 +19,13 @@ namespace FileSearcher.ViewModels
         public MainViewModel(NavigationStore navigationStore)
         {
             _navigationStore = navigationStore;
+
+            _navigationStore.OnViewModelChanged += _navigationStore_OnViewModelChanged;
+        }
+
+        private void _navigationStore_OnViewModelChanged()
+        {
+            OnPropertyChanged(nameof(CurrentViewModel));
         }
     }
 }

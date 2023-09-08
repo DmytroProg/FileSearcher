@@ -24,7 +24,7 @@ namespace FileSearcher
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            _navigationStore.CurrentViewModel = new FileSearchSettingsViewModel();
+            _navigationStore.CurrentViewModel = new FileSearchSettingsViewModel(_navigationStore);
 
             MainWindow = new MainWindow()
             {

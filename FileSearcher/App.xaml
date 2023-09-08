@@ -22,11 +22,10 @@
                 <Setter Property="Margin" Value="20 10"/>
             </Style>
 
-            <Style TargetType="Button">
+            <Style TargetType="Button" x:Key="ButtonBase">
                 <Setter Property="TextBlock.TextAlignment" Value="Center"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="Background" Value="{StaticResource Primary}"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FontSize" Value="18"/>
                 <Setter Property="Padding" Value="10 5"/>
@@ -42,14 +41,43 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+            </Style>
 
+            <Style TargetType="Button" x:Key="PrimaryButton" BasedOn="{StaticResource ButtonBase}">
+                <Setter Property="Background" Value="{StaticResource Primary}"/>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Trigger.EnterActions>
                             <BeginStoryboard>
                                 <Storyboard>
                                     <ColorAnimation Duration="0:0:0.4"
-                                                    To="#7291FF"
+                                    To="#7291FF"
+                                    Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Duration="0:0:0.2"
+                                    To="#007BFF"
+                                    Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.ExitActions>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style TargetType="Button" x:Key="SecondaryButton" BasedOn="{StaticResource ButtonBase}">
+                <Setter Property="Background" Value="{StaticResource Secondary}"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Duration="0:0:0.4"
+                                                    To="#6C757D"
                                                     Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"/>
                                 </Storyboard>
                             </BeginStoryboard>
@@ -58,7 +86,7 @@
                             <BeginStoryboard>
                                 <Storyboard>
                                     <ColorAnimation Duration="0:0:0.2"
-                                                    To="#007BFF"
+                                                    To="Gray"
                                                     Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"/>
                                 </Storyboard>
                             </BeginStoryboard>
