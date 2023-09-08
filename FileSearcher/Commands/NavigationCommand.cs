@@ -11,9 +11,9 @@ namespace FileSearcher.Commands
     public class NavigationCommand : CommandBase
     {
         private readonly NavigationStore _navigationStore;
-        private readonly ViewModelBase _viewModelBase;
+        private readonly Func<ViewModelBase> _viewModelBase;
 
-        public NavigationCommand(NavigationStore navigationStore, ViewModelBase viewModelBase)
+        public NavigationCommand(NavigationStore navigationStore, Func<ViewModelBase> viewModelBase)
         {
             _navigationStore = navigationStore;
             _viewModelBase = viewModelBase;
@@ -21,7 +21,7 @@ namespace FileSearcher.Commands
 
         public override void Execute(object? parameter)
         {
-            _navigationStore.CurrentViewModel = _viewModelBase;
+            _navigationStore.CurrentViewModel = _viewModelBase.Invoke();
         }
     }
 }
