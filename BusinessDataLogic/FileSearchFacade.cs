@@ -20,10 +20,20 @@ namespace BusinessDataLogic
         /// </summary>
         /// <param name="path">path to the disk to search for files</param>
         /// <returns>count of files</returns>
-        /// <exception cref="NotImplementedException"></exception>
         public async Task<int> GetFilesCount(string path)
         {
-            throw new NotImplementedException();
+            int count = 0;
+            var directory = new DirectoryInfo(path);
+            count = directory.GetFiles().Length;
+            foreach (var inner in directory.EnumerateDirectories())
+            {
+                try
+                {
+                    count += await GetFilesCount(inner.FullName);
+                }
+                catch (Exception) { }
+            }
+            return count;
         }
 
         /// <summary>
