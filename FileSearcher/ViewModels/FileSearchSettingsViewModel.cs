@@ -44,7 +44,7 @@ namespace FileSearcher.ViewModels
             return new FileSearcherProcessingViewModel(_navigationStore,
             new FileSearchOptions()
             {
-                Drives = LogicalDrives.Select(x => x.DriveName).Where(x => x == "G:\\").AsEnumerable(),
+                Drives = LogicalDrives.Where(x => x.IsChecked).Select(x => x.DriveName).AsEnumerable(),
                 //Drives = LogicalDrives.Select(x => x.DriveName).AsEnumerable(),
                 //Drives = new List<string>() { "C:\\Users\\User\\Downloads\\TempFolder" },
                 SelectedFolder = SelectedFolder,

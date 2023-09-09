@@ -24,7 +24,7 @@ namespace FileSearcher.ViewModels
 
         public int ProcessValue
         {
-            get => (_fileSearchFacade.IlligalFilesCount * 100) / _maxFilesCount;
+            get => (_fileSearchFacade.IllegalFilesCount * 100) / _maxFilesCount;
         }
 
         public int FilesCount
@@ -32,7 +32,7 @@ namespace FileSearcher.ViewModels
             get
             {
                 OnPropertyChanged(nameof(ProcessValue));
-                return _fileSearchFacade.IlligalFilesCount;
+                return _fileSearchFacade.IllegalFilesCount;
             }
         }
 
@@ -71,14 +71,14 @@ namespace FileSearcher.ViewModels
             int filesCount = await _fileSearchFacade.GetAllFilesCount();
             _maxFilesCount = _fileSearchFacade.MaxFilesCount;
 
-            var list = await _fileSearchFacade.GetAllIlligalFiles();
+            var list = await _fileSearchFacade.GetAllIllegalFiles();
 
             int a = 1;
         }
 
         private void SetPropertyChnagedDependencies()
         {
-            _propertyChangedDependencies[nameof(_fileSearchFacade.IlligalFilesCount)] = nameof(FilesCount);
+            _propertyChangedDependencies[nameof(_fileSearchFacade.IllegalFilesCount)] = nameof(FilesCount);
         }
 
         private void _fileSearchFacade_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

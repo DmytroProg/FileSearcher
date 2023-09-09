@@ -14,17 +14,17 @@ namespace BusinessDataLogic
         private readonly string _folderPath;
         private readonly IEnumerable<string> _drives;
         private object locker;
-        private int _illigalFilesCount;
-        private IEnumerable<string> _illigalWords;
+        private int _illegalFilesCount;
+        private IEnumerable<string> _illegalWords;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public int IlligalFilesCount
+        public int IllegalFilesCount
         {
-            get => _illigalFilesCount;
+            get => _illegalFilesCount;
             set
             {
-                _illigalFilesCount = value;
+                _illegalFilesCount = value;
                 OnPropertyChnaged();
             }
         }
@@ -37,8 +37,8 @@ namespace BusinessDataLogic
             locker = new object();
             _drives = fileSearchOptions.Drives;
             _folderPath = fileSearchOptions.SelectedFolder;
-            _illigalWords = fileSearchOptions.IlligalWords;
-            IlligalFilesCount = 0;
+            _illegalWords = fileSearchOptions.IlligalWords;
+            IllegalFilesCount = 0;
         }
 
         public void OnPropertyChnaged([CallerMemberName] string? propertyName = null)
@@ -84,15 +84,15 @@ namespace BusinessDataLogic
         /// Get the list of file pathes that contain illigal words 
         /// </summary>
         /// <returns>list of file pathes</returns>
-        public async Task<List<string>> GetAllIlligalFiles()
+        public async Task<List<string>> GetAllIllegalFiles()
         {
             var illigalFiles = new List<string>();
             var tasks = new List<Task>();
-            IlligalFilesCount = 0;
+            IllegalFilesCount = 0;
 
             foreach (var name in _drives)
             {
-                tasks.Add(GetIlligalFilesAsync(illigalFiles, name));
+                tasks.Add(GetIllegalFilesAsync(illigalFiles, name));
             }
 
             await Task.WhenAll(tasks);
@@ -100,7 +100,7 @@ namespace BusinessDataLogic
             return illigalFiles;
         }
 
-        private async Task GetIlligalFilesAsync(List<string> files, string path)
+        private async Task GetIllegalFilesAsync(List<string> files, string path)
         {
             var directory = new DirectoryInfo(path);
             
@@ -108,9 +108,9 @@ namespace BusinessDataLogic
             {
                 string text = await fileManager.ReadFileAsync(file.FullName);
 
-                foreach(var word in _illigalWords)
+                foreach(var word in _illegalWords)
                 {
-                    IlligalFilesCount++;
+                    IllegalFilesCount++;
                     /* TODO
                      Add Regex
                      */
@@ -125,7 +125,7 @@ namespace BusinessDataLogic
             {
                 try
                 {
-                    await GetIlligalFilesAsync(files, inner.FullName);
+                    await GetIllegalFilesAsync(files, inner.FullName);
                 }
                 catch (Exception) { }
             }
@@ -140,12 +140,12 @@ namespace BusinessDataLogic
             throw new NotImplementedException();
         }
 
-        private async Task ChangeIlligalWords(string path)
+        private async Task ChangeIllegalWords(string path)
         {
             throw new NotImplementedException();
         }
 
-        public async Task CopyFilesAndChnangeIlligalWords(string path)
+        public async Task CopyFilesAndChnangeIllegalWords(string path)
         {
             throw new NotImplementedException();
         }
