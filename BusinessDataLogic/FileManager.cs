@@ -8,24 +8,32 @@ namespace BusinessDataLogic
 {
     internal class FileManager
     {
-        public async Task<string> ReadFileAsync(string path)
+        public string ReadFile(string path)
         {
-            using(var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            var stringBuilder = new StringBuilder();
+
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                using(var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+                using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
                 {
-                    return await streamReader.ReadToEndAsync();
+                    while (!streamReader.EndOfStream)
+                    {
+                        string? line = streamReader.ReadLine();
+                        stringBuilder.AppendLine(line);
+                    }
                 }
             }
+
+            return stringBuilder.ToString();
         }
 
-        public async Task WriteFileAsync(string path, string text)
+        public void WriteFile(string path, string text)
         {
-            using (var fileStream = new FileStream(path, FileMode.Append, FileAccess.Write))
+            using (var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 using (var streamWriter = new StreamWriter(fileStream, Encoding.UTF8))
                 {
-                    await streamWriter.WriteAsync(text);
+                    streamWriter.Write(text);
                 }
             }
         }
