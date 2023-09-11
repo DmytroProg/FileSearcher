@@ -106,10 +106,7 @@ namespace BusinessDataLogic
 
                 await Task.WhenAll(tasks);
             }
-            catch (Exception)
-            {
-                // Handle exceptions as needed
-            }
+            catch (Exception) { }
 
             return illegalFiles;
         }
@@ -127,7 +124,7 @@ namespace BusinessDataLogic
                     }
                     await Task.Factory.StartNew(() => CheckFileForIllegalWordsAsync(files, file, cancellationToken));
                 }
-                catch (OperationCanceledException) { FilesCount = -1; return; }
+                catch (OperationCanceledException) { return; }
                 catch (Exception) { }
             }
 
@@ -159,7 +156,7 @@ namespace BusinessDataLogic
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
                                 }
-                                catch(OperationCanceledException) { FilesCount = -1; return; }
+                                catch (OperationCanceledException) { FilesCount = -1; return; }
                                 string? line = sr.ReadLine();
                                 if (ContainsIllegalWord(line!))
                                 {
@@ -170,14 +167,8 @@ namespace BusinessDataLogic
                         }
                     }
                 }
-                catch (UnauthorizedAccessException)
-                {
-                    // Handle file access permission issues if needed
-                }
-                catch (IOException)
-                {
-                    // Handle file I/O errors if needed
-                }
+                catch (UnauthorizedAccessException) { }
+                catch (IOException) { }
             }
         }
 
@@ -197,9 +188,22 @@ namespace BusinessDataLogic
             File.Copy(fileInfo.FullName, Path.Combine(_folderPath, fileInfo.Name));
         }
 
-        private async Task ChangeIllegalWords(string path)
+        private void ChangeIllegalWords(string path)
         {
-            throw new NotImplementedException();
+            string fileContent = fileManager.ReadFile(path);
+            fileContent = ReplaceIllegalWords(fileContent);
+            fileManager.WriteFile(path, fileContent);
+        }
+
+        private string ReplaceIllegalWords(string content)
+        {
+            string newContent = "";
+            foreach(var word in _illegalWords)
+            {
+                // TODO Add Regex
+                newContent = content.Replace(word, "*******");
+            }
+            return newContent;
         }
 
         public async Task CopyFilesAndChanngeIllegalWords(List<string> files)
@@ -211,6 +215,15 @@ namespace BusinessDataLogic
                     try
                     {
                         CopyFileToFolder(file);
+                    }
+                    catch (Exception) { }
+                }
+
+                foreach (var file in Directory.EnumerateFiles(_folderPath))
+                {
+                    try
+                    {
+                        ChangeIllegalWords(file);
                     }
                     catch (Exception) { }
                 }
