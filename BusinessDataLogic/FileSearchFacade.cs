@@ -19,7 +19,10 @@ namespace BusinessDataLogic
         private readonly IEnumerable<string> _drives;
         private object locker;
         private int _filesCount;
+        private bool isPaused;
         private IEnumerable<string> _illegalWords;
+        private CancellationTokenSource cancellationTokenSource;
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -42,6 +45,7 @@ namespace BusinessDataLogic
             _drives = fileSearchOptions.Drives;
             _folderPath = fileSearchOptions.SelectedFolder;
             _illegalWords = fileSearchOptions.IlligalWords;
+            cancellationTokenSource = new CancellationTokenSource();
             FilesCount = 0;
         }
 
@@ -57,25 +61,25 @@ namespace BusinessDataLogic
         public async Task<int> GetAllFilesCount()
         {
             int count = 0;
-            foreach (var name in _drives)
+
+            await Task.Run(() =>
             {
-                await Task.Factory.StartNew(async () => count += await GetFilesCount(name));
-            }
+                Parallel.ForEach(_drives, name => count += GetFilesCount(name));
+            });
 
             MaxFilesCount = count;
             return count;
         }
 
-        private async Task<int> GetFilesCount(string path)
+        private int GetFilesCount(string path)
         {
             int count = 0;
-            var directory = new DirectoryInfo(path);
-            count += directory.GetFiles().Length;
-            foreach (var inner in directory.GetDirectories())
+            count += Directory.GetFiles(path).Length;
+            foreach (var inner in Directory.EnumerateDirectories(path))
             {
                 try
                 {
-                    count += await GetFilesCount(inner.FullName);
+                    count += GetFilesCount(inner);
                 }
                 catch (Exception) { }
             }
@@ -86,45 +90,44 @@ namespace BusinessDataLogic
         /// Get the list of file pathes that contain illigal words 
         /// </summary>
         /// <returns>list of file pathes</returns>
-        public List<string> GetAllIllegalFiles()
+        public async Task<List<string>> GetAllIllegalFiles()
         {
-            var illigalFiles = new List<string>();
+            var illegalFiles = new List<string>();
             FilesCount = 0;
 
-            Parallel.ForEach(_drives, async (name) => await GetIllegalFilesAsync(illigalFiles, name));
+            var tasks = new List<Task>();
 
-            return illigalFiles;
+            try
+            {
+                foreach (var name in _drives)
+                {
+                    tasks.Add(GetIllegalFilesAsync(illegalFiles, name, cancellationTokenSource.Token));
+                }
+
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception)
+            {
+                // Handle exceptions as needed
+            }
+
+            return illegalFiles;
         }
 
-        //private void GetAllPathes(List<string> files, string path)
-        //{
-        //    foreach(var file in Directory.EnumerateFiles(path))
-        //    {
-        //        try
-        //        {
-        //            files.Add(file);
-        //        }
-        //        catch(Exception) { }
-        //    }
-
-        //    foreach(var directory in Directory.EnumerateDirectories(path))
-        //    {
-        //        try
-        //        {
-        //            GetAllPathes(files, directory);
-        //        }
-        //        catch(Exception) { }
-        //    }
-        //}
-
-        private async Task GetIllegalFilesAsync(List<string> files, string driveName)
+        private async Task GetIllegalFilesAsync(List<string> files, string driveName, CancellationToken cancellationToken)
         {
-            foreach(var file in Directory.EnumerateFiles(driveName))
+            foreach (var file in Directory.EnumerateFiles(driveName))
             {
                 try
                 {
-                    await Task.Factory.StartNew(() => CheckFileForIllegalWordsAsync(files, file));
+                    cancellationToken.ThrowIfCancellationRequested();
+                    while (isPaused)
+                    {
+                        await Task.Delay(100);
+                    }
+                    await Task.Factory.StartNew(() => CheckFileForIllegalWordsAsync(files, file, cancellationToken));
                 }
+                catch (OperationCanceledException) { FilesCount = -1; return; }
                 catch (Exception) { }
             }
 
@@ -132,13 +135,13 @@ namespace BusinessDataLogic
             {
                 try
                 {
-                    await GetIllegalFilesAsync(files, directory);
+                    await GetIllegalFilesAsync(files, directory, cancellationToken);
                 }
                 catch (Exception) { }
             }
         }
 
-        private void CheckFileForIllegalWordsAsync(List<string> files, string path)
+        private void CheckFileForIllegalWordsAsync(List<string> files, string path, CancellationToken cancellationToken)
         {
             lock (locker)
             {
@@ -152,6 +155,11 @@ namespace BusinessDataLogic
                         {
                             while (!sr.EndOfStream)
                             {
+                                try
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                }
+                                catch(OperationCanceledException) { FilesCount = -1; return; }
                                 string? line = sr.ReadLine();
                                 if (ContainsIllegalWord(line!))
                                 {
@@ -179,109 +187,14 @@ namespace BusinessDataLogic
             return _illegalWords.Any(word => line.Contains(word));
         }
 
-        #region TestCheckFilesMethods
-
-        //public async Task<List<string>> GetAllIllegalFiles()
-        //{
-        //    var illegalFiles = new ConcurrentBag<string>();
-        //    var tasks = new List<Task>();
-        //    FilesCount = 0;
-
-        //    foreach (var name in _drives)
-        //    {
-        //        tasks.Add(ScanDriveAsync(name, illegalFiles));
-        //    }
-
-        //    await Task.WhenAll(tasks);
-
-        //    return illegalFiles.ToList();
-        //}
-
-        //public async Task<List<string>> ScanDriveAsync(string drivePath, ConcurrentBag<string> illegalFiles)
-        //{
-        //    var directoriesToScan = new ConcurrentQueue<string>();
-        //    directoriesToScan.Enqueue(drivePath);
-
-        //    var tasks = new List<Task>();
-
-        //    while (directoriesToScan.Count > 0)
-        //    {
-        //        if (tasks.Count >= MaxDegreeOfParallelism)
-        //        {
-        //            await Task.WhenAny(tasks.ToArray());
-        //            tasks.RemoveAll(t => t.IsCompleted);
-        //        }
-
-        //        if (directoriesToScan.TryDequeue(out string directory))
-        //        {
-        //            tasks.Add(Task.Run(() => ScanDirectory(directory, illegalFiles, directoriesToScan)));
-        //        }
-        //    }
-
-        //    await Task.WhenAll(tasks);
-
-        //    return illegalFiles.ToList();
-        //}
-
-        //private void ScanDirectory(string directoryPath, ConcurrentBag<string> illegalFiles, ConcurrentQueue<string> directoriesToScan)
-        //{
-        //    try
-        //    {
-        //        Parallel.ForEach(
-        //            Directory.EnumerateFiles(directoryPath),
-        //            new ParallelOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism },
-        //            filePath => CheckFileForIllegalWords(filePath, illegalFiles)
-        //        );
-
-        //        foreach (var subdirectory in Directory.EnumerateDirectories(directoryPath))
-        //        {
-        //            directoriesToScan.Enqueue(subdirectory);
-        //        }
-        //    }
-        //    catch (UnauthorizedAccessException)
-        //    {
-        //        // Handle directory access permission issues if needed
-        //    }
-        //}
-
-        //private void CheckFileForIllegalWords(string filePath, ConcurrentBag<string> illegalFiles)
-        //{
-        //    lock (locker)
-        //    {
-        //        FilesCount++;
-        //    }
-
-        //    try
-        //    {
-        //        using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-        //        using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
-        //        {
-        //            var fileContent = streamReader.ReadToEnd();
-        //            if (_illegalWords.Any(word => fileContent.Contains(word)))
-        //            {
-        //                illegalFiles.Add(filePath);
-        //            }
-        //        }
-        //    }
-        //    catch (UnauthorizedAccessException)
-        //    {
-        //        // Handle file access permission issues if needed
-        //    }
-        //    catch (IOException)
-        //    {
-        //        // Handle file I/O errors if needed
-        //    }
-        //}
-
-        #endregion
-
         /// <summary>
         /// Copies file with illigal words to folder
         /// </summary>
         /// <param name="path">path to the folder</param>
         private void CopyFileToFolder(string path)
         {
-            throw new NotImplementedException();
+            FileInfo fileInfo = new(path);
+            File.Copy(fileInfo.FullName, Path.Combine(_folderPath, fileInfo.Name));
         }
 
         private async Task ChangeIllegalWords(string path)
@@ -289,9 +202,19 @@ namespace BusinessDataLogic
             throw new NotImplementedException();
         }
 
-        public async Task CopyFilesAndChnangeIllegalWords(string path)
+        public async Task CopyFilesAndChanngeIllegalWords(List<string> files)
         {
-            throw new NotImplementedException();
+            await Task.Run(() =>
+            {
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        CopyFileToFolder(file);
+                    }
+                    catch (Exception) { }
+                }
+            });
         }
 
         public async Task CreateInfoDoc(string path)
@@ -299,19 +222,19 @@ namespace BusinessDataLogic
             throw new NotImplementedException();
         }
 
-        public async Task Pause()
+        public void Pause()
         {
-            throw new NotImplementedException();
+            isPaused = true;
         }
 
-        public async Task Stop()
+        public void Stop()
         {
-            throw new NotImplementedException();
+            cancellationTokenSource.Cancel();
         }
 
-        public async Task Continue()
+        public void Continue()
         {
-            throw new NotImplementedException();
+            isPaused = false;
         }
     }
 }
