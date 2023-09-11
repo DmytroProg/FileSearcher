@@ -54,14 +54,29 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
+                        x:Name="pauseBtn"
                         Content="Pause"
                         Margin="10"
-                        Style="{StaticResource SecondaryButton}"/>
+                        Click="pauseBtn_Click"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding PauseCommand}">
+                </Button>
+
+                <Button Grid.Column="0"
+                        x:Name="resumeBtn"
+                        Content="Resume"
+                        Margin="10"
+                        Visibility="Hidden"
+                        Click="resumeBtn_Click"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding ResumeCommand}">
+                </Button>
 
                 <Button Grid.Column="1"
                         Content="Cancel"
                         Margin="10"
-                        Style="{StaticResource SecondaryButton}"/>
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding CancelCommand}"/>
             </Grid>
 
             <TextBlock Grid.Row="1"
@@ -82,12 +97,12 @@
                      Maximum="100"
                      Height="30"/>
 
-        <ListView ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
                  Grid.Row="2"
                  Margin="10 0"
                  ItemsSource="{Binding Tasks}">
-            <ListView.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -100,16 +115,16 @@
                                   VerticalAlignment="Center"
                                   FontSize="18"
                                   Margin="0 0 10 0"
-                                  IsChecked="{Binding Value, Mode=OneTime}"/>
+                                  IsChecked="{Binding IsComplited, Mode=OneTime}"/>
 
                         <TextBlock Grid.Column="1"
-                                   Text="{Binding Key}"/>
+                                   Text="{Binding TaskName}"/>
                     </Grid>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="4" Visibility="{Binding BottompanelVisibility}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -123,7 +138,8 @@
             <Button Grid.Column="1"
                     Content="Go back"
                     Margin="60 20"
-                    Style="{StaticResource SecondaryButton}"/>
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding GoBackCommand}"/>
         </Grid>
     </Grid>
 </UserControl>

@@ -17,6 +17,9 @@
             <DataTemplate DataType="{x:Type vms:FileSearcherProcessingViewModel}">
                 <views:FileSearchProcessingView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vms:FileSearchIllegalWordsViewModel}">
+                <views:FileSearchIllegalWordsView/>
+            </DataTemplate>
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
@@ -63,10 +66,16 @@
 
             <Grid Margin="0 20 0 0"
                   Background="{StaticResource Primary}">
+                <Grid.InputBindings>
+                    <MouseBinding MouseAction="LeftClick" Command="{Binding OpenSettingsViewModel}"/>
+                </Grid.InputBindings>
                 <TextBlock Text="Check PC"></TextBlock>
             </Grid>
             <Grid Background="{StaticResource Primary}">
-                <TextBlock Text="Illigal words"></TextBlock>
+                <Grid.InputBindings>
+                    <MouseBinding MouseAction="LeftClick" Command="{Binding OpenIllegalWordsViewModel}"/>
+                </Grid.InputBindings>
+                <TextBlock Text="Illegal words"></TextBlock>
             </Grid>
         </StackPanel>
 

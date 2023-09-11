@@ -16,25 +16,18 @@ using System.Windows.Shapes;
 namespace FileSearcher.Views
 {
     /// <summary>
-    /// Interaction logic for FileSearchProcessingView.xaml
+    /// Interaction logic for FileSearchIllegalWordsView.xaml
     /// </summary>
-    public partial class FileSearchProcessingView : UserControl
+    public partial class FileSearchIllegalWordsView : UserControl
     {
-        public FileSearchProcessingView()
+        public FileSearchIllegalWordsView()
         {
             InitializeComponent();
         }
 
-        private void pauseBtn_Click(object sender, RoutedEventArgs e)
+        private void OpenPopup(object sender, RoutedEventArgs e)
         {
-            pauseBtn.Visibility = Visibility.Hidden;
-            resumeBtn.Visibility = Visibility.Visible;
-        }
-
-        private void resumeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            pauseBtn.Visibility = Visibility.Visible;
-            resumeBtn.Visibility = Visibility.Hidden;
+            addPopup.IsOpen = true;
         }
     }
 }

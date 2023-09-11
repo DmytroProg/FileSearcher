@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="FileSearcher.Views.FileSearchIllegalWordsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FileSearcher.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type={x:Type local:FileSearchIllegalWordsViewModel}, IsDesignTimeCreatable=False}"
+             d:DesignHeight="450" d:DesignWidth="530">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid>
+                <Button Content="Add"
+                        Style="{StaticResource PrimaryButton}"
+                        MinWidth="70"
+                        HorizontalAlignment="Left"
+                        Click="OpenPopup"></Button>
+
+                <Popup x:Name="addPopup"
+                       Placement="Right"
+                       AllowsTransparency="True"
+                       StaysOpen="False">
+                    <Border BorderBrush="{StaticResource Secondary}"
+                            CornerRadius="4" 
+                            Background="White">
+                        <Grid MinWidth="200" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="illegalWordTextBox"
+                                     FontSize="18"/>
+                            <Button Content="+"
+                                    Grid.Column="1"
+                                    Margin="5"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding AddIllegalWordCommand}"
+                                    CommandParameter="{Binding ElementName=illegalWordTextBox, Path=Text}"/>
+                        </Grid>
+                    </Border>
+
+                </Popup>
+            </Grid>
+        </Grid>
+        
+
+        <ListBox Grid.Row="1" 
+                 Margin="0 10"
+                 ItemsSource="{Binding IllegalWords}">
+            
+        </ListBox>
+    </Grid>
+</UserControl>
